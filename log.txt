@@ -1,0 +1,6 @@
+main.cpp: In function ‘int parse_command()’:
+main.cpp:60: error: ‘class Command’ has no member named ‘cmd’
+main.cpp:61: error: ‘class Command’ has no member named ‘pArgs’
+main.cpp: In function ‘int execute_external_command()’:
+main.cpp:85: error: ‘class Command’ has no member named ‘cmd’
+main.cpp:85: error: ‘class Command’ has no member named ‘pArgs’
