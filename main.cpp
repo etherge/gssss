@@ -114,12 +114,17 @@ int parse_command()
 	cout << "i: " << i <<endl;
 
 	position =command_str.length();
+	if(start == 0){//single cmd
+		size = sizeof(char) * command_str.length() + 1;
+		current_command.args[i] = (char*)malloc(size);
+		memcpy(current_command.args[i++], command_str.c_str(), size);
+	}
 	if(start !=0 && start < position){		
 		substring = command_str.substr(start, position-start);
 		if(last_token_t == entity)
 		{	
 			size = sizeof(char) * substring.length() + 1;
-			current_command.args[i++] = (char*)malloc(size);
+			current_command.args[i] = (char*)malloc(size);
 			memcpy(current_command.args[i++], substring.c_str(), size);
 			
 		}else if(last_token_t == sgreater)
