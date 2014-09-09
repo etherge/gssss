@@ -1,21 +1,4 @@
-#include <string>
-#include <iostream>
-
-#include <unistd.h>
-#include <string.h>
-#include <sys/wait.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-
-#include "builtin.h"
-#include "util.h"
-#include "command.h"
 #include "shell.h"
-
-#define MAX_PIPE 8
 
 using namespace std;
 
@@ -144,15 +127,46 @@ int handle_redirect(string& command_str)
 	}
 }
 
+//simple function to validate file name. NOT exactly as linux filename rules.
+int validate_filename(string filename)
+{
+	char firstchar = filename[0];
+	if(firstchar==0 || firstchar=='>' || firstchar=='<')
+		return -1;
+	return 0;
+}
+
+//validate default STDOUT and STDERR
+int validate_std_out(int fd)
+{
+	if(fd==1 || fd==2)
+		return 0;
+	return -1;
+}
+
 //need to add exception handle
 int handle_out_redirect_to_file(int from, string tofile, int append)
 {
-	cout << "out redirect: "<<from <<" " << tofile <<endl;
+	if(validate_std_out(from)!=0 || validate_filename(tofile) != 0)
+	{
+		cout << "syntax error!"<<endl;
+		return -1;
+	}
+
+
+
+	//cout << "out redirect: "<<from <<" " << tofile <<endl;
 	int fd;
-	if(!append)
-		fd = open(tofile.c_str(), O_CREAT | O_TRUNC | O_RDWR, 0666);
-	else
-		fd = open(tofile.c_str(), O_CREAT | O_APPEND | O_RDWR , 0666);
+	if(tofile[0] == '&' && validate_std_out(tofile[1]-'0') == 0)
+	{
+		fd = tofile[1] = '0';
+	}else
+	{
+		if(!append)
+			fd = open(tofile.c_str(), O_CREAT | O_TRUNC | O_RDWR, 0666);
+		else
+			fd = open(tofile.c_str(), O_CREAT | O_APPEND | O_RDWR , 0666);
+	}
 	dup2(fd, from);
 	close(fd);
 	return 0;
@@ -161,7 +175,12 @@ int handle_out_redirect_to_file(int from, string tofile, int append)
 //need to add exception handle
 int handle_in_redirect_from_file(int from, string fromfile)
 {
-	cout << "read from file." << endl;
+	if(from != 0 || validate_filename(fromfile) != 0)
+	{
+		cout << "syntax error!"<<endl;
+		return -1;
+	}
+	//cout << "read from file." << endl;
 	int fd = open(fromfile.c_str(), O_RDONLY);
 	dup2(fd, from);
 	close(fd);

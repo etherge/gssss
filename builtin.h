@@ -17,11 +17,10 @@ extern Command current_command;
 bool isBuiltin(string cmd);
 
 int cd(char* args[MAX_ARGS]);
-
-int initMap();
-
+int echo(char* args[MAX_ARGS]);
 int exit_shell(char* args[MAX_ARGS]);
 
+int initMap();
 int exec_builtin(Command&);
 
 

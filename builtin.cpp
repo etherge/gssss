@@ -31,6 +31,11 @@ int exit_shell(char* args[MAX_ARGS])
 	exit(0);
 }
 
+int echo(char* args[MAX_ARGS])
+{
+	cout << args << endl;
+}
+
 bool isBuiltin(string cmd)
 {
 	table_iter = func_table.find(cmd);
