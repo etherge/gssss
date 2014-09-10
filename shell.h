@@ -31,5 +31,6 @@ int handle_out_redirect_to_file(int from, string tofile, int);
 int handle_in_redirect_from_file(int from, string fromfile);
 int validate_filename(string);
 int validate_std_out(int);
+int prompt();
 
 #endif

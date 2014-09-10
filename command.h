@@ -6,7 +6,7 @@
 
 const int MAX_ARGS=64;
 
-class Command{
+struct Command{
 public:
 	std::string cmd;
 	char* args[MAX_ARGS];

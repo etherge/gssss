@@ -243,10 +243,13 @@ int execute_command(Command& command)
 {
 	if(isBuiltin(command.cmd))
 	{
-		execute_builtin_command(command);
+		if(execute_builtin_command(command) == -1)
+			return -1;
 	}else{
-		execute_external_command(command);
+		if(execute_external_command(command) == -1)
+			return -1;
 	}
+	return 0;
 }
 
 int execute_external_command(Command& command)
@@ -258,11 +261,18 @@ int execute_external_command(Command& command)
 		cout << "fork error!";
 	}else if(pid == 0)
 	{ // in child
-		execvp(command.cmd.c_str(), command.args);
+		if(execvp(command.cmd.c_str(), command.args) == -1)
+		{
+			cout << "execvp error!" << endl;
+			return -1;
+		}
 	}
 	// in parent
-	if((pid = waitpid(pid, &status, 0)) < 0)
+	if((pid = waitpid(pid, &status, 0)) < 0){
 		cout << "error when waitpid.";
+		return -1;
+	}
+		
 	return 0;
 }
 
@@ -285,30 +295,14 @@ int parse_to_commands()
 
 	command_str_list[i] = substring;
 	command_count = i+1;
-
-	//cout << "Commands: " <<endl;
-	//for(int k=0; k<command_count; ++k)
-	//{
-		//cout  << k << ": " <<command_str_list[k] << endl;
-	//}
-	//cout <<endl;
-
-	//for(int j=0; j<command_count; ++j)
-	//{
-		//parse_single_command(command_str_list[j], command_list[j]);
-	//}
 }
 
 
 int parse_single_command(string single_command_str, Command& single_command)
 {
-	//Command single_command;
 	erase_space(single_command_str);
-	//cout << "after erase: " << single_command_str << endl;
 
 	handle_redirect(single_command_str);
-		//return -1;
-	//cout << "after handle redirect: " << single_command_str <<" length: " << single_command_str.length()<<endl;
 
 	int i = 0, start = 0, position, size;
 	string substring;
@@ -340,12 +334,17 @@ int parse_single_command(string single_command_str, Command& single_command)
 	}
 	single_command.args[i] = NULL;
 
-	for(int j=0; j<i; ++j){
-		cout << single_command.args[j] <<"  ";
-	}
-	cout << endl;
 	single_command.cmd = string(single_command.args[0]);
 
+	return 0;
+}
+
+int prompt()
+{
+	char pwd[128];
+	if(getcwd(pwd, sizeof(pwd)) == NULL)
+		return -1;
+	cout << "[foo@gsy_shell:" << pwd << "]$";
 	return 0;
 }
 
@@ -357,7 +356,11 @@ int main(){
 	char endch;
 	while(1){
 		command_str="";
-		cout << "[foo@gsy_shell]$";
+		if(prompt() == -1)
+		{
+			cout << "prompt error" << endl;
+			return -1;
+		}
 		getline(cin, command);
 
 		

@@ -2,28 +2,26 @@
 
 typedef int (*builtin_func)(char* [MAX_ARGS]);
 
-static string builtin_commands[] = {"cd", "pwd"};
 static map<string, builtin_func> func_table;
 
 map <string, builtin_func>::iterator table_iter;
 
 int initMap()
 {
-	cout << "init map." << endl;
 	func_table["cd"] = cd;
 	func_table["exit"] = exit_shell;
-
-	
-
-	//for ( table_iter = func_table.begin( ); table_iter != func_table.end( ); table_iter++ )
-		//(*(table_iter->second))();
+	func_table["echo"] = echo;
 }
 
 int cd(char* args[MAX_ARGS])
 {
-	cout << "exec cd!" << args[1]<<endl;
 	int re = chdir(args[1]);
-	cout << "re: " << re << endl;
+	if(re !=0 )
+	{
+		cout << "exec cd error!" << endl;
+		return -1;
+	}
+	return 0;
 }
 
 int exit_shell(char* args[MAX_ARGS])
@@ -34,6 +32,7 @@ int exit_shell(char* args[MAX_ARGS])
 int echo(char* args[MAX_ARGS])
 {
 	cout << args << endl;
+	return 0;
 }
 
 bool isBuiltin(string cmd)
@@ -48,5 +47,8 @@ bool isBuiltin(string cmd)
 //if this func is invoked, then cmd must be builtin func
 int exec_builtin(Command& command)
 {
-	(*(func_table[command.cmd]))(command.args);
+	int re = (*(func_table[command.cmd]))(command.args);
+	if(re != 0)
+		return -1;
+	return 0;
 }
